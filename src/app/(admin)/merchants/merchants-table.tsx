@@ -177,7 +177,9 @@ export function MerchantsTable({ merchants, meta, filters, canManage }: Merchant
       id: "actions",
       cell: ({ row }) => {
         const merchant = row.original
-        const pendingReview = !merchant.applicationApprovedAt && !merchant.applicationRejectedAt
+        // Not just "never reviewed" — a merchant rejected earlier and reconsidered still needs
+        // Approve/Reject available, not just Activate/Deactivate, until they're actually approved.
+        const needsApprovalDecision = !merchant.applicationApprovedAt
 
         return (
           <DropdownMenu>
@@ -193,7 +195,7 @@ export function MerchantsTable({ merchants, meta, filters, canManage }: Merchant
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" onClick={(event) => event.stopPropagation()}>
-              {pendingReview ? (
+              {needsApprovalDecision ? (
                 <>
                   <DropdownMenuItem onSelect={() => setAction({ type: "approve", merchant })}>
                     <CheckCircle2 /> Approve

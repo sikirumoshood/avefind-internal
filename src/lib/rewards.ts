@@ -24,6 +24,7 @@ const REWARD_LEDGER_TYPE_TONES: Record<RewardLedgerType, StatusTone> = {
   REDEMPTION_REVERSAL: "destructive",
   CASHBACK: "success",
   CASHBACK_REVERSAL: "destructive",
+  OPENING_BALANCE: "neutral",
 }
 
 export function rewardLedgerTypeLabel(type: RewardLedgerType): string {
@@ -37,7 +38,7 @@ export function rewardLedgerTypeTone(type: RewardLedgerType): StatusTone {
   return REWARD_LEDGER_TYPE_TONES[type] ?? "neutral"
 }
 
-/** Credits (accrual/cashback) increase balance, debits (redemption/reversals) decrease it. */
+/** Credits (accrual/cashback/opening balance) increase balance, debits (redemption/reversals) decrease it. */
 export function isRewardCredit(type: RewardLedgerType): boolean {
-  return type === "ACCRUAL" || type === "CASHBACK" || type === "REDEMPTION_REVERSAL"
+  return type === "ACCRUAL" || type === "CASHBACK" || type === "REDEMPTION_REVERSAL" || type === "OPENING_BALANCE"
 }

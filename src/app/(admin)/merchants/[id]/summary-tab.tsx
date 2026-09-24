@@ -51,7 +51,9 @@ export function SummaryTab({ merchant }: { merchant: AdminMerchant }) {
   const [includeReward, setIncludeReward] = useState(merchant.includeRewardInPayout ?? true)
   const [togglingReward, setTogglingReward] = useState(false)
   const status = merchantStatus(merchant)
-  const pendingReview = !merchant.applicationApprovedAt && !merchant.applicationRejectedAt
+  // Not just "never reviewed" — a merchant rejected earlier and reconsidered still needs
+  // Approve/Reject available, not just Activate/Deactivate, until they're actually approved.
+  const needsApprovalDecision = !merchant.applicationApprovedAt
 
   async function handleConfirm(reason?: string): Promise<boolean> {
     if (!action) return false
@@ -141,7 +143,7 @@ export function SummaryTab({ merchant }: { merchant: AdminMerchant }) {
           </div>
 
           <div className="flex gap-2">
-            {pendingReview ? (
+            {needsApprovalDecision ? (
               <>
                 <Button variant="outline" onClick={() => setAction("reject")}>
                   <XCircle /> Reject
@@ -174,6 +176,15 @@ export function SummaryTab({ merchant }: { merchant: AdminMerchant }) {
             }
           />
           <Field label="Business number" value={merchant.businessNumber ?? "—"} />
+          <Field
+            label="Account holder"
+            value={
+              <span className="flex items-center gap-1">
+                {merchant.createdByUser.firstName} {merchant.createdByUser.lastName}
+                <CopyButton value={merchant.createdByUser.email} />
+              </span>
+            }
+          />
           <Field
             label="Business categories"
             value={
@@ -211,12 +222,15 @@ export function SummaryTab({ merchant }: { merchant: AdminMerchant }) {
           <Field
             label="Application status"
             value={
-              pendingReview ? (
-                <StatusBadge label="Pending review" tone="warning" />
-              ) : merchant.applicationRejectedAt ? (
+              // Checked in this order (not needsApprovalDecision) so a rejected-then-reconsidered
+              // merchant still reads as "Rejected" until they're actually re-approved, rather than
+              // reverting to "Pending review".
+              merchant.applicationRejectedAt ? (
                 <StatusBadge label="Rejected" tone="destructive" />
-              ) : (
+              ) : merchant.applicationApprovedAt ? (
                 <StatusBadge label="Approved" tone="success" />
+              ) : (
+                <StatusBadge label="Pending review" tone="warning" />
               )
             }
           />
