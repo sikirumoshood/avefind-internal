@@ -683,6 +683,7 @@ export type RewardLedgerType =
   | "REDEMPTION_REVERSAL"
   | "CASHBACK"
   | "CASHBACK_REVERSAL"
+  | "OPENING_BALANCE"
 
 export type RewardConfigUser = { id: string; firstName: string; lastName: string }
 
